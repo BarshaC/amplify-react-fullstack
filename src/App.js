@@ -47,6 +47,7 @@ const App = ({ signOut }) => {
     const form = new FormData(event.target);
     const image = form.get("image");
     console.log(image)
+    console.log(image)
     const data = {
       name: form.get("name"),
       description: form.get("description"),
