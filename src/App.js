@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./App.css";
 import "@aws-amplify/ui-react/styles.css";
-import Resizer from 'react-image-file-resizer';
+
 import {
   Button,
   Flex,
@@ -47,15 +47,14 @@ const App = ({ signOut }) => {
     event.preventDefault();
     const form = new FormData(event.target);
     const image = form.get("image");
-    const resizedImage = await resizeImage(image);
     console.log(image)
     console.log(image)
     const data = {
       name: form.get("name"),
       description: form.get("description"),
-      image: resizedImage.name
+      image: image.name
     };
-    if (!!data.image) await uploadData({key: data.name, data:resizedImage});
+    if (!!data.image) await uploadData({key: data.name, data:image});
     await client.graphql({
       query: createNoteMutation,
       variables: { input: data },
@@ -63,37 +62,7 @@ const App = ({ signOut }) => {
     fetchNotes();
     event.target.reset();
   }
-
-  async function resizeImage(image) {
-    return new Promise((resolve) => {
-      Resizer.imageFileResizer(
-        image,
-        300, // Set the desired width
-        300, // Set the desired height
-        'JPEG', // Set the output format (JPEG or PNG)
-        100, // Set the quality (0 to 100)
-        0, // Set the rotation (0 to 360)
-        (uri) => {
-          const resizedImage = dataURLtoFile(uri, 'resized_image.jpg');
-          resolve(resizedImage);
-        },
-        'file'
-      );
-    });
-  }
   
-  function dataURLtoFile(dataurl, filename) {
-    const arr = dataurl.split(',');
-    const mime = arr[0].match(/:(.*?);/)[1];
-    const bstr = atob(arr[1]);
-    let n = bstr.length;
-    const u8arr = new Uint8Array(n);
-    while (n--) {
-      u8arr[n] = bstr.charCodeAt(n);
-    }
-    return new File([u8arr], filename, { type: mime });
-  }
-
   async function deleteNote({ id, name }) {
     const newNotes = notes.filter((note) => note.id !== id);
     setNotes(newNotes);
